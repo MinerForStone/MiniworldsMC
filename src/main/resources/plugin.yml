@@ -8,9 +8,31 @@ api-version: '1.20'
 commands:
   craft:
     description: "Opens the crafting grid"
+    default: not op
+
   minihelp:
     description: "Displays Miniworlds commands"
+    default: not op
+
   teams:
     description: "Opens the team selection menu"
+    default: not op
+
   shop:
     description: "Opens the shop"
+    default: not op
+
+
+  removeteam:
+    description: "Removes yourself from a nation"
+    default: op
+
+  give:
+    description: "Gives a Miniworlds item"
+    usage: "Usage: /give <ID> <amount>"
+    default: op
+
+  delete:
+    description: "Completely deletes an existing nation"
+    usage: "Usage: /delete <ID>"
+    default: op

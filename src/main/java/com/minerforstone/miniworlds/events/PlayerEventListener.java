@@ -1,6 +1,7 @@
 package com.minerforstone.miniworlds.events;
 
-import com.minerforstone.miniworlds.logic.Structures;
+import com.minerforstone.miniworlds.logic.Feedback;
+import com.minerforstone.miniworlds.world.structures.Structure;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -8,6 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.lang.reflect.Constructor;
 
 public class PlayerEventListener implements Listener {
     // Player events
@@ -18,13 +21,23 @@ public class PlayerEventListener implements Listener {
         if (interactionPoint == null) return;
 
         if (itemStack == null) {
-            Structures.remove(interactionPoint, event.getPlayer());
+            Structure structure = Structure.get(interactionPoint);
+            if (structure != null)
+                structure.remove(event.getPlayer());
             return;
         }
 
-        if (event.getItem().getItemMeta().hasCustomModelData() && event.getItem().getType().equals(Material.OAK_PLANKS)) {
+        if (itemStack.getItemMeta().hasCustomModelData() && itemStack.getType().equals(Material.OAK_PLANKS)) {
             event.setCancelled(true);
-            Structures.build(interactionPoint, event.getPlayer());
+
+            try {
+                Constructor<? extends Structure> constructor = Structure.REGISTRY.get(itemStack.getItemMeta().getCustomModelData()).getDeclaredConstructor();
+                constructor.setAccessible(true);
+                constructor.newInstance().place(event.getPlayer(), interactionPoint);
+
+            } catch (Exception e) {
+                Feedback.send(Feedback.Error.INVALID_STRUCTURE, event.getPlayer());
+            }
         }
     }
 
